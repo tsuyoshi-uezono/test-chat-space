@@ -1,0 +1,25 @@
+1.グループ作成(インクリメンタルサーチ)
+  ①何も反応しない users is not defind
+  ②何も反応しない Cannot read property 'length' of undefined
+2.メッセージ送信機能
+  ①alert'メッセージ送信に失敗しました'
+  ②送信するとフォームの下にメッセージが表示される
+3.自動更新(app/assets/javascripts/reload.js のコメントアウトを外す)
+  ②他グループの発言が増え続ける
+  (グループを2つ作り、一方で発言した後に別のグループで自動更新を待つと発生)
+
+1.グループ作成
+  groups/index.json.jbuilder
+    ②users/へ移動
+  user.js
+    ①l48 data => users
+2.メッセージ送信
+  messages/create.json.jbuilder
+    ①l6 json.user.name => json.user_name
+  message.js
+    ②l41 $('.chat-main') => $('.messages')
+3.自動更新
+  messages/index.json.builder
+    ②json.id message.id を追加(reload.jsに続く)
+  reload.js
+    ②l7  message_id="${message.id}" と修正
