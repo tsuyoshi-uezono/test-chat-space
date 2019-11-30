@@ -5,26 +5,29 @@
       %ul
         - group.errors.full_messages.each do |message|
           %li= message
-  .chat-group-form__field.clearfix
+  .chat-group-form__field
     .chat-group-form__field--left
-      = f.label :name, class: "chat-group-form__label" do
-        グループ名
+      = f.label :name, class: 'chat-group-form__label'
     .chat-group-form__field--right
-      = f.text_field :name, class: "chat__group_name chat-group-form__input", placeholder: "グループ名を入力してください"
+      = f.text_field :name, class: 'chat__group_name chat-group-form__input', placeholder: 'グループ名を入力してください'
+  .chat-group-form__field.clearfix
+    / この部分はインクリメンタルサーチ（ユーザー追加の非同期化のときに使用します
   .chat-group-form__field.clearfix
     .chat-group-form__field--left
-      = label_tag(:search, class: "chat-group-form__label", for: "user-search-field") do
-        チャットメンバーを追加
+      %label.chat-group-form__label{for: "chat_group_チャットメンバーを追加"} チャットメンバーを追加
     .chat-group-form__field--right
       .chat-group-form__search.clearfix
-        = text_field_tag :search, "", {placeholder: "追加したいユーザー名を入力してください", class: "chat-group-form__input", id: "user-search-field"}
+        %input#user-search-field.chat-group-form__input{placeholder: "追加したいユーザー名を入力してください", type: "text"}/
       #user-search-result
+
   .chat-group-form__field.clearfix
     .chat-group-form__field--left
-      = label_tag :members, "チャットメンバー", class: "chat-group-form__label"
+      %label.chat-group-form__label{for: "chat_group_チャットメンバー"} チャットメンバー
     .chat-group-form__field--right
-      .chat-group-users.js-add-user
-        .chat-group-user.clearfix.js-chat-member{id: current_user.id}
+      #chat-group-users
+        .chat-group-user.chat-current-user{id: current_user.id}
+          -# ここ大事、勉強しよう
+          -# current_userをグループに入れるのに必要みたいです↓↓
           = f.hidden_field :user_ids, value: current_user.id, name: "group[user_ids][]"
           %p.chat-group-user__name= current_user.name
         - group.users.where.not(id: current_user.id).each do |user|
@@ -32,7 +35,8 @@
             = f.hidden_field :user_ids, value: user.id, name: "group[user_ids][]"
             %p.chat-group-user__name= user.name
             %a.chat-group-user__btn.chat-group-user__btn--remove.js-remove-btn 削除
+
   .chat-group-form__field.clearfix
     .chat-group-form__field--left
     .chat-group-form__field--right
-      = f.submit class: "chat-group-form__action-btn"
+      = f.submit class: 'chat-group-form__action-btn'

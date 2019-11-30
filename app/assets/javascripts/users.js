@@ -1,77 +1,65 @@
-$(document).on('turbolinks:load', function() {
-  function appendUser (user) {
-    const html = `<div class="chat-group-user clearfix">
+$(document).on('turbolinks:load',function(){
+  function appendUser(user){
+    var html =` <div class="chat-group-user clearfix">
                   <p class="chat-group-user__name">${user.name}</p>
-                  <a class="user-search-add chat-group-user__btn chat-group-user__btn--add" data-user-id="${user.id}" data-user-name="${user.name}">追加</a>
+                  <div class="user-search-add chat-group-user__btn chat-group-user__btn--add" data-user-id="${user.id}" data-user-name="${user.name}">追加</div>
                 </div>`
-    user_list.append(html);
+    $('#user-search-result').append(html)
   }
 
-  function appendMessage (message) {
-    const html = `<div class="chat-group-user clearfix">
-                  <p class="chat-group-user__name">${message}</p>
-                </div>`
-    user_list.append(html);
+  function appendErrMsgToHtml(msg){
+    var html = `<div class="chat-group-user clearfix">${msg}</div>`
+    $('#user-search-result').append(html)
   }
 
-  function addUser (name, id) {
-    const html = `<div class='chat-group-user clearfix js-chat-member' id='chat-group-user-${id}'>
-                  <input name='group[user_ids][]' type='hidden' value='${id}'>
-                  <p class='chat-group-user__name'>${name}</p>
-                  <a class='user-search-remove chat-group-user__btn chat-group-user__btn--remove js-remove-btn'>削除</a>
+  function appendAddUser(user_name, user_id){
+    var html = `<div class='chat-group-user'>
+                  <input name='group[user_ids][]' type='hidden' value='${user_id}'>
+                  <p class='chat-group-user__name'>${user_name}</p>
+                  <div class='user-search-remove chat-group-user__btn chat-group-user__btn--remove js-remove-btn'>削除</div>
                 </div>`
-    $('.js-add-user').append(html);
+    $('#chat-group-users').append(html)
   }
 
-  let userIds = []; // 検索から除くuser
-  const user_list = $('#user-search-result'); // 検索結果表示欄
-  $('.js-chat-member').each(function(index, el) {
-    userIds.push(el.getAttribute('id'));
-  });
-
-  $('#user-search-field').on('input', function(e) {
+  $('#user-search-field').on("keyup", function(e){
     e.preventDefault();
-    // 入力内容を取得
-    const input = $('#user-search-field').val();
-    if (input.length == 0) {
-      user_list.empty();
-      return
-    };
+    // ここで中身を空にする
+    $("#user-search-result").empty();
+    var input = $("#user-search-field").val();
 
-    $.ajax({
-      type: 'GET',
-      url: '/users',
-      dataType: 'json',
-      data: { keyword: input,
-              user_ids: userIds },
-    })
-    .done(function(data) {
-      user_list.empty();
-      if (users.length !== 0) {
-        users.forEach(function(user) {
-          appendUser(user);
-        })
-      } else {
-        appendMessage('一致するユーザーが見つかりません');
-      }
-    })
-    .fail(function() {
-      alert("ユーザー検索に失敗しました");
-    })
-  });
+    if (input.length == 0){
 
-  user_list.on('click', '.chat-group-user__btn--add', function() {
-    const userName = $(this).attr('data-user-name');
-    const userId   = $(this).attr('data-user-id');
+    } else {
+      $.ajax({
+        type: 'GET',
+        url:  '/users',
+        data: {keyword: input},
+        dataType: 'json'
+      })
 
-    userIds.push(userId);
-    $(this).parent().remove();
-    addUser(userName, userId);
+      .done(function(users){
+        if(users.length !== 0){
+          users.forEach(function(user){
+            appendUser(user);
+          });
+        }
+        else {
+          appendErrMsgToHtml('一致するユーザーはいません')
+        }
+      })
+      .fail(function(){
+        alert('ユーザー検索に失敗しました')
+      })
+    }
   })
-
-  $('.js-add-user').on('click', '.js-remove-btn', function() {
-    const removedUserId = $(this).siblings('input').val();
-    userIds = userIds.filter(id => id != removedUserId);
+  $('#user-search-result').on("click", '.user-search-add', function(){
+    // appendUserのカスタムデータ属性を使う(ここめっちゃ大事)
+    $(this).parent().remove();
+    var user_name = $(this).data("user-name")
+    var user_id   = $(this).data("user-id")
+    appendAddUser(user_name, user_id)
+  })
+  $('#chat-group-users').on("click", '.js-remove-btn', function(){
     $(this).parent().remove();
   })
-});
+})

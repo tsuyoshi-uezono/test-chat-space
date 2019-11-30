@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   def index
-    @users = User.search_for_group(params)
+    @users = User.where('name LIKE(?) and id != ?', "%#{params[:keyword]}%", current_user.id)
     respond_to do |format|
       format.html
       format.json
@@ -8,7 +8,6 @@ class UsersController < ApplicationController
   end
 
   def edit
-
   end
 
   def update
@@ -20,8 +19,7 @@ class UsersController < ApplicationController
   end
 
   private
-
   def user_params
-    params[:user].permit(:name, :email)
+    params.require(:user).permit(:name, :email)
   end
 end
